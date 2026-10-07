@@ -4,13 +4,14 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.runtime.remember
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import app.ratio.ui.expense.NewExpenseScreen
+import app.ratio.ui.home.HomeScreen
+import app.ratio.ui.home.HomeViewModel
+import app.ratio.ui.nav.Routes
 import app.ratio.ui.theme.RatioTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,29 +20,18 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             RatioTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                val app = application as RatioApp
+                val nav = rememberNavController()
+                NavHost(navController = nav, startDestination = Routes.HOME) {
+                    composable(Routes.HOME) {
+                        val vm = remember {
+                            HomeViewModel(app.expenseRepo, app.categoryRepo)
+                        }
+                        HomeScreen(viewModel = vm) { nav.navigate(Routes.NEW) }
+                    }
+                    composable(Routes.NEW) { NewExpenseScreen() }
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    RatioTheme {
-        Greeting("Android")
     }
 }
